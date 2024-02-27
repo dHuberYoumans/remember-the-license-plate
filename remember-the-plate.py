@@ -5,12 +5,17 @@ from sys import platform
 
 # TO DO: 
 # documentation
-# proper error handlng in usr input
+# proper error handlng for usr input
 # GUI
 # more modes:
 # sudden-death: go until first miss
 # free practice: go on as long as you want to (maybe option to simply train 1,2 or mixed)
 # survival: ends after 3 misses also gain life after 5 correct in a row?
+
+
+# some error handling
+# if wrong, show the correct license plate
+# timer
 
 
 alphabet = dict(zip([i for i in range(1,27)],'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z'.split()))
@@ -54,12 +59,26 @@ def license_plate():
     else:
         return license_plate()
     
+def get_kfz(str):
+    try:
+        kfz = input(str).lower().replace('-','').replace(' ','')
+    except AttributeError: # if one wants to skip the license plate, one is asked to  hit enter returning a NoneType objet. This raises an AttributeError in get_answer_one().lower()
+        kfz = 'skipped'
+    
+    if len(kfz) < 6 and len(kfz) > 0 or len(kfz) > 8:
+        print('\nBitte gib ein gültiges Kennzeichen ein.')
+        print('Ein Kennzeichen muss mindestens 6 Zeichen beinhalten.')
+        print('Wenn du aufhören möchtest, tippe Enter \n')
+        return get_kfz(str)
+    else:
+        return kfz 
+    
 def get_answer_one():
-    return input('Kfz-Kennz.: ')
+    get_kfz('Kfz-Kennz.: ')
 
 def get_answer_two():
-    kfz_one = input('Kfz-Kennz. 1/2: ')
-    kfz_two = input('Kfz-Kennz. 2/2: ')
+    kfz_one = get_kfz('Kfz-Kennz. 1/2: ')
+    kfz_two = get_kfz('Kfz-Kennz. 2/2: ')
 
     return [kfz_one,kfz_two]
 
@@ -67,8 +86,7 @@ def weiter_machen(score,t):
     global miss
     global total
 
-    b = True
-    while b:
+    while True:
         weiter = input('Möchtest Du weiter machen? ja/nein/score/highscore [j/n/s/h]\n')
 
         if weiter.lower() == 'j':
@@ -78,8 +96,8 @@ def weiter_machen(score,t):
             print(f'Score: {total-miss}/{total}')
             print(f'Highscore: {max(score)}')
             print('Bis zum nächsten Mal!')
-            b = False
-        elif weiter.lower() == 'h':
+            exit()
+        elif weiter.lower() == 's':
             print(f'Score: {total - miss}/{total}')
             return weiter_machen(score,t)
         elif weiter.lower() == 'h':
@@ -93,19 +111,23 @@ def test_one(t,run):
     total += 1
 
     clear_prompt()
-    print('\nFertig?')
+    print('Fertig?')
     pause(1)
     print('Los!')
     pause(1)
-    clear_prompt()
-
+    
+    
     lp = license_plate()
-    print(lp)
-    pause(t)
     clear_prompt()
 
-    kfz = get_answer_one().lower().replace('-','').replace(' ','')
+    # show license plate and remaining display time
+    for i in range(0,t):
+        print(lp + '          {:02d}'.format(t-i), end='\r')
+        pause(1)
 
+   
+    kfz = get_answer_one()
+   
     if kfz == lp.lower().replace('-','').replace(' ',''):
         run += 1
         print('Korrekt!')
@@ -114,6 +136,8 @@ def test_one(t,run):
         return run, True
     else:
         miss += 1
+        print(f'Schade! Richtig wäre gewesen')
+        print(f'\n{lp}\n')
         print('Versuch es nochmal!')
         print(f'Score: {total-miss}/{total}')
         return run, False
@@ -125,20 +149,24 @@ def test_two(t,run):
     total += 2
 
     clear_prompt()
-    print('\nFertig?')
+    print('Fertig?')
     pause(1)
     print('Los!')
     pause(1)
     clear_prompt()
 
     lp = [license_plate(),license_plate()]
-    print(lp[0])
-    print(lp[1])
+    for i in range(0,t): 
+        print(lp[1] + '          {:02d}'.format(t-i))
+        print(lp[0])
+        pause(1)
+        clear_prompt()
+ 
     lpp = [s.lower().replace('-','').replace(' ','') for s in lp]
     pause(t)
     clear_prompt()
 
-    kfz = [s.lower().replace('-','').replace(' ','') for s in get_answer_two()]
+    kfz = [s for s in get_answer_two()]
 
     if kfz[0] in lpp and kfz[1] in lpp:
         run += 2
@@ -150,13 +178,22 @@ def test_two(t,run):
         run += 1
         miss += 1
         print('Fast! 1/2 richtig!')
+        if kfz[1] not in lpp:
+            print(f'Das zweite Kennzeichen wäre {kfz[0]} gewesen.')
+        else:
+            print(f'Das zweite Kennzeichen wäre {kfz[1]} gewesen.')
         print(f'Score: {total-miss}/{total}\n')
         pause(1)
         
         return run, True
     else:
         miss += 2
-        print('Schade. Gleich nochmal!')
+        print('Schade. Die Kennzeichen waren')
+        print('')
+        print(lp[0])
+        print(lp[1])
+        print('')
+        print('Gleich nochmal!')
         print(f'Score: {total-miss}/{total}')
         return run, False
 
@@ -180,25 +217,29 @@ def test(t):
 
     return run
 
+def get_time(str):
+    try:
+        return int(str)
+    except ValueError:
+        return get_time(input('Bitte gebe eine ganze Zahl ein: '))
+
 def main(): 
     score = []
-    t = int(input('Hi! Wie wie viele Sekunden möchtest Du Zeit haben?\n\n'))
+
+    t = get_time(input('Hi! Wie wie viele Sekunden möchtest Du Zeit haben?\n\n'))
+    
     b = True
     global miss
     global total
     miss = 0
     total = 0
 
- 
     score.append(test(t))
         
     weiter_machen(score,t)
         
   
 
-main()
-# WHY DOES THIS NOT WORK?
-    
-# if __name__ == "__main__ ":
-#     main()
+if __name__ == '__main__':
+    main()
 
