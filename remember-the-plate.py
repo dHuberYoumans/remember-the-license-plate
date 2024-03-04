@@ -15,8 +15,7 @@ from sys import platform
 # implement international license plates
 # when wrong guess, not only show correct answer but also wrong guess
 
-# PRESENTATION TIER
-# string for clearing (console) cmd
+
 class SysCmd:
     def __init__(self):
         if platform.startswith('darwin'):
@@ -30,7 +29,6 @@ class SysCmd:
 
     def pause(self,t):
         time.sleep(t)
-
 
 class Babel:
     def __init__(self,char):
@@ -112,6 +110,11 @@ class Train(SysCmd,LicensePlate):
         self.miss = miss
         self.alphabet = alphabet
         self.license_plate = LicensePlate(alphabet)
+
+    def reset(self):
+        self.score = [0]
+        self.total = 0
+        self.miss = 0
 
     def train_one_rnd(self,t,run):
 
@@ -628,9 +631,6 @@ def main():
                 training(t,run,score,option,choice,train,0,0,0)
     
         
-    
-        
-  
 
 if __name__ == '__main__':
     main()
