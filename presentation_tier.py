@@ -22,43 +22,68 @@ class SysCmd: # singleton pattern
         """ clear the command line """
         os.system(self.clear)
 
-    def pause(self,t):
-        time.sleep(t)
-
 sys_cmd = SysCmd()
+
+class WriteToPrompt():
+    def __new__(cls):
+        if not hasattr(cls,'instance'):
+            cls.instance = super(WriteToPrompt,cls).__new__(cls)
+        return cls.instance
+    
+    def __init__(self):
+        pass
+
+    def typing(self, string : str):
+        for c in string:
+            print(c,end='')
+            time.sleep(0.05)
+        print('\n')
+
+    def loading(self, string : str):
+        for c in string:
+            print(c,end='')
+            time.sleep(0.05)
+        time.sleep(0.3)
+        for c in '.......':
+            print(c,end='')
+            time.sleep(0.3)
+
+write_to_prompt = WriteToPrompt()
 
 class UserInterface:
     """ lass implements the user intereface """
     def __init__(self):
         self.menu = MainMenu()
+        self.flow_ctrl = FlowCtrl()
 
     def run(self):
         alphabet = bll.Babel('latin')
 
-        print('Wilkommen bei Remember the Plate!\n')
+        print('Willkommen bei Remember the Plate!')
 
         while True:
             self.menu = MainMenu()
             self.menu.display() # show menu
 
-            self.mode = self.menu.handle_usr_choice(input()) # get usr input and handle choice
+            self.mode = self.menu.handle_usr_choice(input('Deine Eingabe: ')) # get usr input and handle choice
 
             if self.mode == 'test':
                 test_dummy = bll.TestLicenseplate()
 
                 sys_cmd.clear_prompt()
-                print('Buisness, huh? Nagut!\n')
+                write_to_prompt.typing('Buisness, huh? Nagut!\n')
                 self.menu = TestMenu()
                 self.menu.display()
 
-                usr_choice = self.menu.handle_usr_choice(input())
+                usr_choice = self.menu.handle_usr_choice(input('Deine Eingabe: '))
 
                 if usr_choice == '1':
                     test_dummy = bll.Survival(test_dummy)
                     self.menu = TestSurvivalMenu()
                     self.menu.display()
-                    health = self.menu.handle_usr_choice(input('Mit vielen Leben möchtest Du starten? '))
-                    print(f'\nDu startest mit {health} Leben.\n')
+                    write_to_prompt.typing('Mit vielen Leben möchtest Du starten?\n')
+                    health = self.menu.handle_usr_choice(input('\n'))
+                    write_to_prompt.typing(f'\nDu startest mit {health} Leben.\n')
                     test_dummy.set_health(health)
 
                 elif usr_choice == '2':
@@ -76,13 +101,14 @@ class UserInterface:
 
                 alive = True
                 while alive:
-                    print('\nGo! (enter)')
-                    print('Hauptmenu. (quit)')
-                    usr_input = input()
+                    usr_input = self.flow_ctrl.go_on()
                     if usr_input == '':
                         display_test = TestDisplay(test_dummy)
                         display_test.display_test(t,[test_dummy.generate_license_plate()])
                         alive = test_dummy.get_test_run().get_alive() 
+                    elif usr_input == 's':
+                        print(f'\n Momentaner Score: {test_dummy.get_test_run().get_total_score()}')
+                        continue
                     elif usr_input == 'quit':
                         sys_cmd.clear_prompt()
                         break
@@ -97,21 +123,21 @@ class UserInterface:
 
                 option_rnd_or_specific = self.menu.handle_usr_choice(input('Option: ')) # checks if user wants to learn 1 or 2 license plates
                 if option_rnd_or_specific == '1':
-                    dummy_license_plate = bll.Random(dummy_license_plate) # wrap component as random
+                    train_dummy = bll.Random(dummy_license_plate) # wrap component as random
                 if option_rnd_or_specific == '2':
-                    dummy_license_plate = bll.Specific(dummy_license_plate)
+                    train_dummy = bll.Specific(dummy_license_plate)
                     try:
-                        dummy_license_plate.set_unit_one(int(input('\nWie viele Buchstaben soll es in der ersten Einheit geben (1/2/3)? ')))
+                        train_dummy.set_unit_one(int(input('\nWie viele Buchstaben soll es in der ersten Einheit geben (1/2/3)? ')))
                     except TypeError:
                         print('Bitte einen integer Eingeben')
 
                     try:   
-                        dummy_license_plate.set_unit_two(int(input('Wie viele Buchstaben soll es in der zweiten Einheit geben (1/2)? ')))
+                        train_dummy.set_unit_two(int(input('Wie viele Buchstaben soll es in der zweiten Einheit geben (1/2)? ')))
                     except TypeError:
                         print('Bitte einen integer Eingeben')
 
                     try:
-                        dummy_license_plate.set_unit_three(int(input('Wie viele Ziffern soll das Kennzeichen haben (1/2/3/4)? ')))
+                        train_dummy.set_unit_three(int(input('Wie viele Ziffern soll das Kennzeichen haben (1/2/3/4)? ')))
                     except TypeError:
                         print('Bitte einen integer Eingeben')
                 
@@ -119,24 +145,23 @@ class UserInterface:
                 self.menu.display()
                 option_one_or_many = self.menu.handle_usr_choice(input('Option: '))
                 if option_one_or_many == '1':
-                    dummy_license_plate = bll.N(dummy_license_plate,1) # wrap component as N (number of license plates)
+                    train_dummy = bll.N(train_dummy,1) # wrap component as N (number of license plates)
                 if option_one_or_many == '2':
                     self.n = int(input('\nWie viele Kennzeichen möchtest du trainieren? X = '))
-                    dummy_license_plate = bll.N(dummy_license_plate,self.n) # wrap component as N (number of license plates)
+                    train_dummy = bll.N(train_dummy,self.n) # wrap component as N (number of license plates)
 
                 t = get_time(input('\nWie wie viele Sekunden möchtest Du Zeit haben? ')) # errror handling? 
 
                 while True:
-                    print('\nGo! (enter)')
-                    print('Hauptmenu (quit)\n')
-                    usr_input = input()
+                    usr_input = self.flow_ctrl.go_on()
                     if usr_input == '':
-                        display_training = TrainingDisplay(dummy_license_plate)
-                        display_training.display_training(t,dummy_license_plate.generate_license_plate())
+                        display_training = TrainingDisplay(train_dummy)
+                        display_training.display_training(t,train_dummy.generate_license_plate())
+                    elif usr_input == 's':
+                        print(f'\nMomentaner Score: {train_dummy.get_trainings_run().get_total_score()}')
                     elif usr_input == 'quit':
                         sys_cmd.clear_prompt()
                         break
-
         
 def get_time(str):
     try:
@@ -186,14 +211,19 @@ class TrainingMenu(AbstractMenu): # concrete strategy
 
     @staticmethod
     def display():
-        print('\n(Übungslager)')
+        write_to_prompt.loading('\nStarte Trainings Modus')
+        write_to_prompt.typing('Laden Erfolgreich.')
+        print('\n')
+        print('(Übungslager)')
         print('Willkommen im Übungslager.\n')
         print('Was möchtest Du üben?')
         print('1. Zufällige Kennzeichen')
         print('2. Sepzifische Konfigurationen\n')
 
+        
+
     def handle_usr_choice(self, choice : str):
-        return choice        
+        return choice    
 
 class TrainingSubMenu(AbstractMenu): # concrete strategy 
     """ this class is a concrete strategy for the training menu """
@@ -228,20 +258,17 @@ class TestSurvivalMenu(AbstractMenu):
 
     @staticmethod 
     def display():
-        print('\nStarte Survival Modus',end='')
-        time.sleep(0.3)
-        for c in '.....':
-            print(c,end='')
-            time.sleep(0.3)
+        write_to_prompt.loading('\nStarte Survival Modus')
+        write_to_prompt.typing('Laden Erfolgreich.')
+        print('\n')
+
 
     def handle_usr_choice(self, choice : str) -> int:
         try:
              usr_input = int(choice)
         except ValueError:
             self.handle_usr_choice('Bitte gebe einie ganze Zahl ein: ')
-
         return usr_input
-
 
 class TestSuddenDeathMenu(AbstractMenu):
     def __init__(self):
@@ -249,57 +276,13 @@ class TestSuddenDeathMenu(AbstractMenu):
 
     @staticmethod 
     def display():
-        print('\nStarte Sudden Death Modus',end='')
-        time.sleep(0.3)
-        for c in '.....':
-            print(c,end='')
-            time.sleep(0.3)
-        
-        for c in 'One life. One opportunity.':
-            print(c,end='')
-            time.sleep(0.1)
+        write_to_prompt.loading('\nStarte Sudden Death Modus')
+        write_to_prompt.typing('One life. One opportunity.')
 
         print('\n') 
 
     def handle_usr_choice(self):
         pass
-
-  
-class ContinueMenu(AbstractMenu): # concrete strategy 
-    """ this class is a concrete strategy for asking if the user wants to continue """
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def display():
-        print('Möchtest Du weiter machen? Ja/Nein/Score/Beenden [j/n/s/exit]: ')
-
-    def handle_usr_choice(self,choice : str):
-        if choice.lower() == 'j':
-            print('continue')
-            # bt.score.append(test(t,score))
-
-        elif choice.lower()=='n':
-            print('you stop')
-            # print(f'Score: {total-miss}/{total}')
-            # print(f'Highscore: {max(score)}')
-            input()
-            return False # how to go back to main menu?
-            
-        elif choice.lower() == 's':
-            sys_cmd.clear_prompt()
-            print('score')
-            # print(f'Score: {total - miss}/{total}')
-            # print(f'Highscore: {max(score)}')
-            self.handle_usr_choice(input('Möchtest Du weiter machen? Ja/Nein/Score/Beenden [j/n/s/exit]: ')) 
-        
-        elif choice.lower() == 'exit':
-            sys_cmd.clear_prompt()
-            print('score')
-            # print(f'Score: {total-miss}/{total}')
-            # print(f'Highscore: {max(score)}')
-            print('Bis zum nächsten Mal!')
-            exit()
             
 class TrainingDisplay:
     def __init__(self, train_dummy : bll.AbstractTrain):
@@ -420,3 +403,14 @@ class TestDisplay:
         sys_cmd.clear_prompt() 
         kfz = self.get_kfz(len(lp)) 
         self.evaluate_answer(kfz,lp)   
+
+class FlowCtrl(): # concrete strategy 
+    """ this class provides varies continue methods for flow control """
+    def __init__(self):
+        pass
+
+    def go_on(self) -> str:
+        print('\nGo! (enter)')
+        print('Score (s) ')
+        print('Hauptmenu (quit)\n')
+        return input('Deine Eingabe: ') 

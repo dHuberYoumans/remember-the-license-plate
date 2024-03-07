@@ -71,9 +71,7 @@ class LicensePlate:
         if len(self.lp) <= 10 and len(self.lp) > 0:
             return self.lp
         
-
-# train license plate logic using decorators
-        
+# train license plate logic using decorators   
 class TrainingsRun():
     def __init__(self):
         self.score_list = [0]
@@ -259,8 +257,7 @@ class N(AbstractTrainDecorator): # concrete decorator
         else: 
             raise AttributeError("set_unit_three is only available when Specific is wrapped")
 
-# test license plate logic using decorators 
-        
+# test license plate logic using decorators    
 class TestRun():
     def __init__(self):
         self.alive = True
@@ -398,7 +395,6 @@ class SuddenDeath(AbstractTestDecorator): # concrete decorator of test class
     def get_test_run(self) -> TestRun:
         return self.test_dummy.get_test_run()
     
-
 class Survival(AbstractTestDecorator): # concrete decorator of test class
     def __init__(self, test_license_plate : AbstractTest):
         super().__init__(test_license_plate)
