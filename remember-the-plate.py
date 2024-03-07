@@ -510,6 +510,7 @@ def training(t,run,score,option,choice,mode_obj,unit_one,unit_two,unit_three):
                 training(t,run,score,1,2,train,unit_one,unit_two,unit_three)
          
         elif go_or_quit == 'quit':
+            train.reset()
             return False
               
 
@@ -522,7 +523,7 @@ def training(t,run,score,option,choice,mode_obj,unit_one,unit_two,unit_three):
             # training(t,run,score,2)
             train.total += 2
             if choice == 1:
-                train.run, train.miss, train.score = train.train_two_rnd(t,run,unit_one,unit_two,unit_three)
+                train.run, train.miss, train.score = train.train_two_rnd(t,run)
                 training(t,run,score,2,1,train,unit_one,unit_two,unit_three)
             elif choice == 2:
                 train.run, train.miss, train.score = train.train_two_spc(t,run,unit_one,unit_two,unit_three)
@@ -531,18 +532,16 @@ def training(t,run,score,option,choice,mode_obj,unit_one,unit_two,unit_three):
         elif go_or_quit == 'quit':
             return False
         
+# initialize classes needed
+sys_cmd = SysCmd()
+alphabet = Babel('latin')      
+license_plate = LicensePlate(alphabet)
+train = Train([0],0,0,alphabet)
 
 def main(): 
     global miss
     global total
-
-    # initialize classes needed
-    sys_cmd = SysCmd()
-    alphabet = Babel('latin')      
-    license_plate = LicensePlate(alphabet)
-    train = Train([0],0,0,alphabet)
     
-
     while True:
         sys_cmd.clear_prompt()
         print('Hi! Warum bist Du hier?')
