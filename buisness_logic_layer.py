@@ -386,7 +386,7 @@ class SuddenDeath(AbstractTestDecorator): # concrete decorator of test class
     
     def test(self, kfz : list[str], license_plates : list[LicensePlate]) -> dict:
         self.test_results = self.test_dummy.test(kfz, license_plates) 
-        self.test_dummy.get_test_run().set_alive(all(self.test_results))
+        self.test_dummy.get_test_run().set_alive(all(self.test_results.values()))
         return self.test_results
 
     def generate_license_plate(self) -> str:

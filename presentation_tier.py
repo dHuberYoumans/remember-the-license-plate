@@ -59,7 +59,7 @@ class UserInterface:
     def run(self):
         alphabet = bll.Babel('latin')
 
-        print('Willkommen bei Remember the Plate!')
+        print('Willkommen bei Remember the Plate!\n')
 
         while True:
             self.menu = MainMenu()
@@ -81,8 +81,7 @@ class UserInterface:
                     test_dummy = bll.Survival(test_dummy)
                     self.menu = TestSurvivalMenu()
                     self.menu.display()
-                    write_to_prompt.typing('Mit vielen Leben möchtest Du starten?\n')
-                    health = self.menu.handle_usr_choice(input('\n'))
+                    health = self.menu.handle_usr_choice(input('Mit wie vielen Leben möchtest Du starten?'))
                     write_to_prompt.typing(f'\nDu startest mit {health} Leben.\n')
                     test_dummy.set_health(health)
 
@@ -378,6 +377,8 @@ class TestDisplay:
                 print(f"{'verbleibende Leben:':<20}{self.test_dummy.get_test_run().get_health()}") 
                 if self.test_dummy.get_test_run().get_health() == 0:
                     print('GAME OVER')
+                    input('')
+                    sys_cmd.clear_prompt()
             else: 
                 print('Stark! Alles richtig. Weiter so!')
             
@@ -410,7 +411,7 @@ class FlowCtrl(): # concrete strategy
         pass
 
     def go_on(self) -> str:
-        print('\nGo! (enter)')
+        print('Go! (enter)')
         print('Score (s) ')
         print('Hauptmenu (quit)\n')
         return input('Deine Eingabe: ') 
