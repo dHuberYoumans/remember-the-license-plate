@@ -2,6 +2,7 @@
 import buisness_logic_layer as bll
 import time
 import os
+import sys
 from sys import platform
 from abc import ABC, abstractmethod
 
@@ -35,17 +36,23 @@ class WriteToPrompt():
 
     def typing(self, string : str):
         for c in string:
-            print(c,end='')
+            sys.stdout.write(c)
+            sys.stdout.flush()
+            # print(c,end='')
             time.sleep(0.05)
         print('\n')
 
     def loading(self, string : str):
         for c in string:
-            print(c,end='')
+            sys.stdout.write(c)
+            sys.stdout.flush()
+            # print(c,end='')
             time.sleep(0.05)
         time.sleep(0.3)
         for c in '.......':
-            print(c,end='')
+            sys.stdout.write(c)
+            sys.stdout.flush()
+            # print(c,end='')
             time.sleep(0.3)
 
 write_to_prompt = WriteToPrompt()
@@ -82,7 +89,7 @@ class UserInterface:
                     self.menu = TestSurvivalMenu()
                     self.menu.display()
                     health = self.menu.handle_usr_choice(input('Mit wie vielen Leben möchtest Du starten?'))
-                    write_to_prompt.typing(f'\nDu startest mit {health} Leben.\n')
+                    print(f'\nDu startest mit {health} Leben.\n')
                     test_dummy.set_health(health)
 
                 elif usr_choice == '2':
