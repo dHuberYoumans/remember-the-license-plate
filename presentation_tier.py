@@ -38,7 +38,6 @@ class WriteToPrompt():
         for c in string:
             sys.stdout.write(c)
             sys.stdout.flush()
-            # print(c,end='')
             time.sleep(0.05)
         print('\n')
 
@@ -46,13 +45,11 @@ class WriteToPrompt():
         for c in string:
             sys.stdout.write(c)
             sys.stdout.flush()
-            # print(c,end='')
             time.sleep(0.05)
         time.sleep(0.3)
         for c in '.......':
             sys.stdout.write(c)
             sys.stdout.flush()
-            # print(c,end='')
             time.sleep(0.3)
 
 write_to_prompt = WriteToPrompt()
